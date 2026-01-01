@@ -70,7 +70,7 @@ MLFLOW_TRACKING_USERNAME=your usuername \
 MLFLOW_TRACKING_PASSWORD=your password \
 python script.py
 
-Run this to export as env variables:
+Run this to set as env variables:
 
 ```bash
 
