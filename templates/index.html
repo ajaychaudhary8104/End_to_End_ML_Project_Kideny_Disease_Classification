@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kidney Disease Classification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background-color: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background-color: #f0f2ff;
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .file-name {
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-predict:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-predict:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-clear {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-clear:hover {
+            background: #e0e0e0;
+        }
+
+        .result-container {
+            display: none;
+            background: #f8f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-container.success {
+            border-left-color: #27ae60;
+        }
+
+        .result-container.error {
+            border-left-color: #e74c3c;
+        }
+
+        .result-title {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .result-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prediction-result {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .prediction-result.normal {
+            color: #27ae60;
+        }
+
+        .prediction-result.tumor {
+            color: #e74c3c;
+        }
+
+        .confidence {
+            text-align: right;
+        }
+
+        .confidence-label {
+            color: #666;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .confidence-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .result-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .confidence {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Kidney Disease Classification</h1>
+            <p>CT Scan Image Analysis using Deep Learning</p>
+        </div>
+
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="imageUpload">Upload CT Scan Image</label>
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Click to upload or drag and drop</div>
+                    <div class="upload-hint">PNG, JPG or JPEG (Max 10MB)</div>
+                    <input type="file" id="imageUpload" accept="image/*" required>
+                    <div class="file-name" id="fileName"></div>
+                </div>
+                <div class="preview-container" id="previewContainer">
+                    <img id="previewImage" class="preview-image" alt="Preview">
+                </div>
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-predict" id="predictBtn">
+                    🔍 Predict
+                </button>
+                <button type="reset" class="btn-clear" id="clearBtn">
+                    Clear
+                </button>
+            </div>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666; font-size: 14px;">Analyzing image...</p>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-title">Prediction Result</div>
+            <div class="result-content">
+                <div class="prediction-result" id="predictionResult"></div>
+                <div class="confidence">
+                    <span class="confidence-label">Confidence</span>
+                    <span class="confidence-value" id="confidenceValue"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>⚠️ This tool is for reference purposes only and should not replace professional medical diagnosis.</p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('predictionForm');
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileNameDisplay = document.getElementById('fileName');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const loading = document.getElementById('loading');
+        const resultContainer = document.getElementById('resultContainer');
+        const predictionResult = document.getElementById('predictionResult');
+        const confidenceValue = document.getElementById('confidenceValue');
+        const errorMessage = document.getElementById('errorMessage');
+        const predictBtn = document.getElementById('predictBtn');
+
+        // Upload area click
+        uploadArea.addEventListener('click', () => imageUpload.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                imageUpload.files = files;
+                handleFileSelect();
+            }
+        });
+
+        // File selection
+        imageUpload.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect() {
+            const file = imageUpload.files[0];
+            if (file) {
+                // Validate file
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (file.size > maxSize) {
+                    showError('File size exceeds 10MB limit');
+                    imageUpload.value = '';
+                    return;
+                }
+
+                fileNameDisplay.textContent = `✓ ${file.name}`;
+                fileNameDisplay.style.display = 'block';
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+
+                clearError();
+            }
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = imageUpload.files[0];
+            if (!file) {
+                showError('Please select an image');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                loading.style.display = 'block';
+                resultContainer.style.display = 'none';
+                predictBtn.disabled = true;
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Display results
+                const prediction = data.prediction;
+                const confidence = (data.confidence * 100).toFixed(2);
+
+                predictionResult.textContent = prediction.toUpperCase();
+                predictionResult.className = `prediction-result ${prediction.toLowerCase()}`;
+                confidenceValue.textContent = `${confidence}%`;
+
+                resultContainer.classList.remove('error');
+                resultContainer.classList.add('success');
+                resultContainer.style.display = 'block';
+
+                clearError();
+            } catch (error) {
+                showError(`Prediction failed: ${error.message}`);
+                resultContainer.style.display = 'none';
+            } finally {
+                loading.style.display = 'none';
+                predictBtn.disabled = false;
+            }
+        });
+
+        // Clear form
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            form.reset();
+            fileNameDisplay.style.display = 'none';
+            previewContainer.style.display = 'none';
+            resultContainer.style.display = 'none';
+            clearError();
+        });
+
+        function showError(message) {
+            errorMessage.textContent = `❌ ${message}`;
+            errorMessage.style.display = 'block';
+        }
+
+        function clearError() {
+            errorMessage.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
