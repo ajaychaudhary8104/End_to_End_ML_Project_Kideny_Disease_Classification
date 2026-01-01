@@ -1,109 +1,342 @@
-# Kidney-Disease-Classification-MLflow-DVC
+# Kidney Disease Classification - MLflow & DVC
 
+## 📋 Project Overview
 
-## Workflows
+This is an end-to-end machine learning project for kidney disease classification using Convolutional Neural Networks (CNN). The project leverages **MLflow** for experiment tracking and **DVC** (Data Version Control) for reproducible ML pipelines. The model classifies CT scan images as either **Normal** or **Tumor** cases.
 
-1. Update config.yaml
-2. Update secrets.yaml [Optional]
-3. Update params.yaml
-4. Update the entity
-5. Update the configuration manager in src config
-6. Update the components
-7. Update the pipeline 
-8. Update the main.py
-9. Update the dvc.yaml
-10. app.py
+### 🎯 Key Features
 
-# How to run?
-### STEPS:
+- **Deep Learning Pipeline**: VGG16-based CNN architecture for medical image classification
+- **Experiment Tracking**: MLflow integration for tracking metrics, parameters, and models
+- **Data Versioning**: DVC for tracking dataset versions and pipeline reproducibility
+- **Web Application**: FastAPI and Flask-based REST APIs for model serving
+- **Modular Architecture**: Clean separation of concerns with components, pipelines, and utilities
+- **Configuration Management**: YAML-based configuration for easy customization
 
-Clone the repository
+---
+
+## 📁 Project Structure
+
+```
+├── artifacts/                          # Model artifacts and preprocessed data
+│   ├── data_ingestion/                # Raw and processed datasets
+│   │   └── kidney-ct-scan-image/
+│   │       ├── Normal/               # Normal kidney images
+│   │       └── Tumor/                # Tumor kidney images
+│   ├── prepare_base_model/           # Base model files
+│   │   ├── base_model.keras
+│   │   └── base_model_updated.keras
+│   └── training/                      # Trained model
+│       └── model.keras
+│
+├── src/cnnClassifier/                 # Main package
+│   ├── components/                    # Core ML components
+│   │   ├── data_ingestion.py         # Data loading and preprocessing
+│   │   ├── prepare_base_model.py     # Model initialization
+│   │   ├── model_training.py         # Training logic
+│   │   └── model_evaluation_mlflow.py # Evaluation with MLflow
+│   │
+│   ├── config/
+│   │   └── configuration.py           # Configuration management
+│   │
+│   ├── entity/
+│   │   └── config_entity.py          # Entity definitions
+│   │
+│   ├── pipeline/                      # ML pipeline stages
+│   │   ├── stage_01_data_ingestion.py
+│   │   ├── stage_02_prepare_base_model.py
+│   │   ├── stage_03_model_training.py
+│   │   ├── stage_04_model_evaluation.py
+│   │   └── prediction.py              # Inference pipeline
+│   │
+│   └── utils/
+│       └── common.py                  # Utility functions
+│
+├── config/
+│   └── config.yaml                    # Configuration file
+│
+├── research/                          # Jupyter notebooks for exploration
+│   ├── 01_data_ingestion.ipynb
+│   ├── 02_prepare_base_model.ipynb
+│   ├── 03_model_training.ipynb
+│   └── 04_model_evaluation_with_mlflow.ipynb
+│
+├── templates/
+│   └── index.html                     # Web UI template
+│
+├── app.py                             # Flask application
+├── app_fastapi.py                     # FastAPI application
+├── main.py                            # Main entry point
+├── dvc.yaml                           # DVC pipeline configuration
+├── params.yaml                        # Model hyperparameters
+├── config.yaml                        # Project configuration
+└── requirements.txt                   # Project dependencies
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- Conda (recommended) or pip
+- Git
+
+### Installation Steps
+
+#### STEP 1: Clone the Repository
 
 ```bash
-https://github.com/ajaychaudhary8104/End_to_End_ML_Project_Kideny_Disease_Classification
+git clone https://github.com/ajaychaudhary8104/End_to_End_ML_Project_Kideny_Disease_Classification.git
+cd End_to_End_ML_Project_Kideny_Disease_Classification
 ```
-### STEP 01- Create a conda environment after opening the repository
+
+#### STEP 2: Create Conda Environment
 
 ```bash
 conda create -n cnncls python=3.12 -y
-```
-
-```bash
 conda activate cnncls
 ```
 
+#### STEP 3: Install Dependencies
 
-### STEP 02- install the requirements
 ```bash
 pip install -r requirements.txt
 ```
 
+#### STEP 4: Run the Application
+
 ```bash
-# Finally run the following command
+# Flask application
 python app.py
+
+# Or FastAPI application
+python app_fastapi.py
 ```
 
-Now,
+#### STEP 5: Access the Web Interface
+
+Open your browser and navigate to:
+```
+http://localhost:8000
+```
+
+---
+
+## 📊 Pipeline Workflow
+
+The project follows a structured ML workflow:
+
+1. **Data Ingestion** - Load and extract kidney CT scan images
+2. **Base Model Preparation** - Initialize VGG16 pre-trained model
+3. **Model Training** - Fine-tune the model on kidney disease data
+4. **Model Evaluation** - Evaluate performance with MLflow tracking
+5. **Prediction** - Deploy model for inference on new images
+
+### Configuration Workflow
+
+To modify the pipeline:
+
+1. Update `config/config.yaml` - Set paths and parameters
+2. Update `params.yaml` - Modify hyperparameters
+3. Update `entity/config_entity.py` - Define configuration entities
+4. Update `config/configuration.py` - Implement configuration manager
+5. Update components in `components/` - Modify pipeline stages
+6. Update pipeline stages in `pipeline/` - Update pipeline logic
+7. Update `main.py` - Execute the pipeline
+8. Update `dvc.yaml` - Define DVC pipeline stages
+
+---
+
+## 🔧 Configuration Files
+
+### config.yaml
+Contains paths to artifacts, source, and output directories:
+```yaml
+artifacts_root: artifacts
+source_download_dirs:
+  - data
+data_ingestion_config:
+  unzip_dir: artifacts/data_ingestion
+```
+
+### params.yaml
+Defines model hyperparameters:
+```yaml
+epochs: 25
+batch_size: 16
+learning_rate: 0.001
+```
+
+---
+
+## 🤖 ML Experiment Tracking with MLflow
+
+### MLflow Features
+
+- **Experiment Tracking**: Log parameters, metrics, and artifacts
+- **Model Registry**: Version and manage models
+- **Production Deployment**: Serve models in production
+
+### Starting MLflow UI
+
 ```bash
-open up you local host and port
+mlflow ui
 ```
 
+Access MLflow UI at: `http://localhost:5000`
 
+### DagsHub Integration
 
-
-
-
-## MLflow
-
-- [Documentation](https://mlflow.org/docs/latest/index.html)
-
-- [MLflow tutorial](https://youtu.be/qdcHHrsXA48?si=bD5vDS60akNphkem)
-
-##### cmd
-- mlflow ui
-
-### dagshub
-[dagshub](https://dagshub.com/)
-
-MLFLOW_TRACKING_URI=your mlflow uri \
-MLFLOW_TRACKING_USERNAME=your usuername \
-MLFLOW_TRACKING_PASSWORD=your password \
-python script.py
-
-Run this to set as env variables:
+Track experiments on DagsHub:
 
 ```bash
-
-set MLFLOW_TRACKING_URI= your mlflow uri
-
-set MLFLOW_TRACKING_USERNAME= your usuernam
-
-set MLFLOW_TRACKING_PASSWORD=your password
-
+set MLFLOW_TRACKING_URI=<your_dagshub_url>
+set MLFLOW_TRACKING_USERNAME=<your_username>
+set MLFLOW_TRACKING_PASSWORD=<your_password>
+python main.py
 ```
 
+---
 
-### DVC cmd
+## 📦 DVC (Data Version Control)
 
-1. dvc init
-2. dvc repro
-3. dvc dag
+### Initialize DVC
+
+```bash
+dvc init
+```
+
+### Run DVC Pipeline
+
+```bash
+dvc repro
+```
+
+### View Pipeline DAG
+
+```bash
+dvc dag
+```
+
+### Common DVC Commands
+
+```bash
+dvc add <file_or_directory>        # Track data with DVC
+dvc push                            # Push data to remote storage
+dvc pull                            # Pull data from remote storage
+dvc status                          # Check pipeline status
+```
+
+---
+
+## 📡 API Endpoints
+
+### Flask Application (app.py)
+
+- **Home Page**: `GET /`
+- **Upload & Predict**: `POST /predict` (with image file)
+- **Results**: `GET /results`
+
+### FastAPI Application (app_fastapi.py)
+
+- **API Docs**: `GET /docs`
+- **Predict**: `POST /predict` (with image file)
+- **Health Check**: `GET /health`
+
+---
+
+## 🧪 Jupyter Notebooks
+
+Research notebooks for exploration and experimentation:
+
+- `research/01_data_ingestion.ipynb` - Explore data loading
+- `research/02_prepare_base_model.ipynb` - Test model preparation
+- `research/03_model_training.ipynb` - Training experiments
+- `research/04_model_evaluation_with_mlflow.ipynb` - Evaluation with MLflow
+
+---
+
+## 📋 Requirements
+
+See `requirements.txt` for all dependencies:
+
+```
+tensorflow>=2.13.0
+scikit-learn
+mlflow
+dvc
+fastapi
+uvicorn
+flask
+pillow
+numpy
+pandas
+pyyaml
+```
+
+---
+
+## 📚 Documentation
+
+### MLflow
+- [Official Documentation](https://mlflow.org/docs/latest/index.html)
+- [MLflow Tutorial](https://youtu.be/qdcHHrsXA48)
+
+### DVC
+- [Official Website](https://dvc.org/)
+- [DVC Documentation](https://dvc.org/doc)
+
+### DagsHub
+- [DagsHub Platform](https://dagshub.com/)
+
+---
+
+## 🏗️ Project Architecture
+
+The project uses a modular architecture:
+
+- **Components**: Individual steps of the ML pipeline
+- **Pipeline**: Orchestrate components in sequence
+- **Config**: Centralized configuration management
+- **Entity**: Data classes for type safety
+- **Utils**: Shared utility functions
+
+---
+
+## 📝 Model Details
+
+**Architecture**: VGG16 (Pre-trained on ImageNet)
+- Transfer Learning approach for medical image classification
+- Fine-tuned on kidney CT scan images
+- Input Shape: (224, 224, 3)
+- Output: Binary classification (Normal vs Tumor)
+
+---
+
+## 🤝 Contributing
+
+Feel free to fork this repository and submit pull requests for improvements.
+
+---
+
+## 📄 License
+
+This project is licensed under the LICENSE file in the repository.
+
+---
+
+## 👨‍💻 Author
+
+For questions or support, please open an issue in the repository.
 
 
-## About MLflow & DVC
-
-MLflow
-
- - Its Production Grade
- - Trace all of your expriements
- - Logging & taging your model
 
 
-DVC 
 
- - Its very lite weight for POC only
- - lite weight expriements tracker
- - It can perform Orchestration (Creating Pipelines)
+
+
 
 
 
